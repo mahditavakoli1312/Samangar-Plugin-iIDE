@@ -2,31 +2,34 @@ package ir.mahditavakoli.samangar
 
 import com.example.common.ResultWrapper
 import com.example.tasks.model.remote.ReportRequest
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.remoteDev.util.UrlParameterKeys.Companion.projectPath
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.ui.JBUI
 import ir.mahditavakoli.samangar.task.model.*
 import ir.mahditavakoli.samangar.utils.ApiLogic
-import ir.mahditavakoli.samangar.utils.getGitBranchName
 import ir.mahditavakoli.samangar.utils.getHeadBranchName
 import ir.mahditavakoli.samangar.utils.getPersianCurrentDateYMD
+import ir.mahditavakoli.samangar.utils.getProjectName
 import ir.mahditavakoli.samangar.utils.ui.CustomJComboBox
 import ir.mahditavakoli.samangar.utils.ui.PlaceholderTextField
 import ir.mahditavakoli.samangar.utils.ui.SamangarLoginDialog
 import kotlinx.coroutines.*
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.Dimension
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.swing.*
 
 class Samangar : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val myToolWindow = MyToolWindow()
+        val myToolWindow = MyToolWindow(project)
         val contentFactory = ApplicationManager.getApplication().getService(ContentFactory::class.java)
         val content: Content = contentFactory.createContent(myToolWindow.content, "mahdi", true)
         toolWindow.contentManager.addContent(content)
@@ -34,7 +37,9 @@ class Samangar : ToolWindowFactory {
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-class MyToolWindow {
+class MyToolWindow(
+    val project: Project
+) {
 
     val content: JPanel
     private val tvTaskName: PlaceholderTextField
@@ -71,9 +76,11 @@ class MyToolWindow {
             alignmentY = JPanel.CENTER_ALIGNMENT
         }
 
-        GlobalScope.launch(Dispatchers.IO){
+        GlobalScope.launch(Dispatchers.IO) {
             println("IO OUTPUT ->")
-            val result = getHeadBranchName()
+            val processResult = getHeadBranchName(project)
+            val result =
+                "work on project  ${getProjectName(project)}:${processResult.message} ${processResult.errorMessage} (from samangar plugin)"
             println("result is : $result")
             tvTaskName.text = result
             println("<- IO OUTPUT")
