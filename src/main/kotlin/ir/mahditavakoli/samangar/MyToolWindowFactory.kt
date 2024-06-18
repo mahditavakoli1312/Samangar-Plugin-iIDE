@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
-import com.intellij.remoteDev.util.UrlParameterKeys.Companion.projectPath
+import com.intellij.ui.JBColor
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.ui.JBUI
@@ -21,8 +21,6 @@ import ir.mahditavakoli.samangar.utils.ui.SamangarLoginDialog
 import kotlinx.coroutines.*
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.Dimension
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.swing.*
@@ -31,11 +29,12 @@ class Samangar : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val myToolWindow = MyToolWindow(project)
         val contentFactory = ApplicationManager.getApplication().getService(ContentFactory::class.java)
-        val content: Content = contentFactory.createContent(myToolWindow.content, "mahdi", true)
+        val content: Content = contentFactory.createContent(myToolWindow.content, "Samangar", true)
         toolWindow.contentManager.addContent(content)
     }
 }
 
+@Suppress("NAME_SHADOWING")
 @OptIn(DelicateCoroutinesApi::class)
 class MyToolWindow(
     val project: Project
@@ -99,7 +98,7 @@ class MyToolWindow(
 
         content = JPanel().apply {
             border = BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(java.awt.Color.BLACK), // Outer border
+                BorderFactory.createLineBorder(JBColor.BLACK), // Outer border
                 JBUI.Borders.empty(10) // Inner padding
             )
 
@@ -281,7 +280,9 @@ class MyToolWindow(
                                         selectedTag = value
                                         println("Selected tag $selectedTag")
                                     }
+                                    println("is blank")
                                     panel.add(tagBox)
+
                                 }
                                 panel.layout = VerticalLayout(10)
                                 // Add the CustomJComboBox to the JPanel

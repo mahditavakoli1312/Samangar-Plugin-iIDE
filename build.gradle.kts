@@ -25,11 +25,19 @@ dependencies {
 
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    version.set("2023.2.6")
-    type.set("IC") // Target IDE Platform
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+
+intellij {
+    // Define IntelliJ Platform against which to build the plugin project.
+
+    // Same IntelliJ IDEA version (2019.1.4) as target 3.5 Android Studio:
+    version.set("2023.2.6")
+
+    // Use IntelliJ IDEA CE because it's the basis of the IntelliJ Platform:
+    type.set("IC")
+
+    // Require the Android plugin (Gradle will choose the correct version):
+    plugins.set(listOf("android"))
 }
 
 tasks {
@@ -55,5 +63,11 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+    }
+
+    runIde {
+        // Absolute path to installed target 3.5 Android Studio to use as
+        // IDE Development Instance (the "Contents" directory is macOS specific):
+        ideDir.set(file("/home/mahditavakoli/.local/share/JetBrains/Toolbox/apps/android-studio"))
     }
 }
