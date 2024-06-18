@@ -1,16 +1,14 @@
 package ir.mahditavakoli.samangar.utils.ui
 
-import com.jetbrains.rd.swing.awtKeyEvent
 import com.jetbrains.rd.util.first
 import org.apache.commons.lang3.tuple.MutablePair
 import org.jdesktop.swingx.HorizontalLayout
-import org.jdesktop.swingx.VerticalLayout
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import javax.swing.JButton
 import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JPanel
-import java.awt.FlowLayout
-import javax.swing.BoxLayout
-import javax.swing.JButton
 
 class CustomJComboBox(
     title: String,
@@ -18,7 +16,7 @@ class CustomJComboBox(
     onItemSelected: (String, String) -> Unit
 ) : JPanel() {
 
-    private val itemMap: Map<String, String>
+    private var itemMap: Map<String, String>
     private val comboBox: JComboBox<String>
     private val label: JLabel
     private val btn_submit: JButton
@@ -49,10 +47,12 @@ class CustomJComboBox(
 
         }
 
-        btn_submit.addActionListener {
-            onItemSelected(selectedItem.right, selectedItem.left)
-        }
-
+        btn_submit.addActionListener(
+            ButtonClickListener(
+                onItemSelected,
+                selectedItem
+            )
+        )
 
         // Create label for the title
         label = JLabel(title)
@@ -61,5 +61,25 @@ class CustomJComboBox(
         // Add combo box to the panel
         add(comboBox)
         add(label)
+    }
+
+    fun updateItems(
+        items: Map<String, String>
+    ) {
+        comboBox.removeAllItems()
+        itemMap = items
+        for (key in items.keys) {
+            comboBox.addItem(key)
+        }
+    }
+}
+
+
+class ButtonClickListener(
+    val onItemSelected: (String, String) -> Unit,
+    val selectedItem: MutablePair<String, String>
+) : ActionListener {
+    override fun actionPerformed(e: ActionEvent) {
+        onItemSelected(selectedItem.right, selectedItem.left)
     }
 }

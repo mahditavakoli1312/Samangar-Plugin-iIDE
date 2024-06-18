@@ -10,7 +10,10 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
 import com.intellij.util.ui.JBUI
-import ir.mahditavakoli.samangar.task.model.*
+import ir.mahditavakoli.samangar.task.model.ReportProjectEntity
+import ir.mahditavakoli.samangar.task.model.ReportTagEntity
+import ir.mahditavakoli.samangar.task.model.toReportProjectEntity
+import ir.mahditavakoli.samangar.task.model.toReportTagEntity
 import ir.mahditavakoli.samangar.utils.ApiLogic
 import ir.mahditavakoli.samangar.utils.getHeadBranchName
 import ir.mahditavakoli.samangar.utils.getPersianCurrentDateYMD
@@ -18,7 +21,10 @@ import ir.mahditavakoli.samangar.utils.getProjectName
 import ir.mahditavakoli.samangar.utils.ui.CustomJComboBox
 import ir.mahditavakoli.samangar.utils.ui.PlaceholderTextField
 import ir.mahditavakoli.samangar.utils.ui.SamangarLoginDialog
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.Dimension
 import java.time.LocalDateTime
@@ -251,45 +257,48 @@ class MyToolWindow(
                                         }
                                     globalTagsResponse.addAll(tagsResponse)
                                 }
-                                ResultWrapper.Success(resultData = Unit)
                             }
 
 
-                            val projectPanel = JPanel().also { panel ->
-                                val projectItems = globalProjects.associate {
-                                    (it.project to it.id)
+                            val projectItems = globalProjects.associate {
+                                (it.project to it.id)
+                            }
+
+
+                            var tagItems: Map<String, String> = globalTagsResponse.associate {
+                                (it.name to it.id)
+                            }
+
+                            // Create a CustomJComboBox with the items and an action listener
+                            val tagBox = CustomJComboBox("تگ : ", tagItems) { key, value ->
+                                println("Selected item: Key = $key, Value = $value")
+                                selectedTag = value
+                                println("Selected tag $selectedTag")
+                            }
+
+                            // Create a CustomJComboBox with the items and an action listener
+                            val projectBox = CustomJComboBox("پروژه : ", projectItems) { key, value ->
+                                println("Selected item: Key = $key, Value = $value")
+                                selectedProject = value
+                                println("Selected project $selectedProject")
+
+                                if (selectedProject.isNotBlank()) {
+                                    kotlin.runCatching {
+                                        tagBox.updateItems(
+                                            globalTagsResponse.filter {
+                                                it.projectId == selectedProject
+                                            }.associate {
+                                                (it.name to it.id)
+                                            }
+                                        )
+                                    }
                                 }
-
-
                                 // Create a CustomJComboBox with the items and an action listener
-                                val projectBox = CustomJComboBox("پروژه : ", projectItems) { key, value ->
-                                    println("Selected item: Key = $key, Value = $value")
-                                    selectedProject = value
-                                    println("Selected project $selectedProject")
-
-                                    // Create a map of items for the JComboBox
-                                    val tagItems = globalTagsResponse.filter {
-                                        it.projectId == selectedProject
-                                    }.associate {
-                                        (it.name to it.id)
-                                    }
-
-                                    // Create a CustomJComboBox with the items and an action listener
-                                    val tagBox = CustomJComboBox("تگ : ", tagItems) { key, value ->
-                                        println("Selected item: Key = $key, Value = $value")
-                                        selectedTag = value
-                                        println("Selected tag $selectedTag")
-                                    }
-                                    println("is blank")
-                                    panel.add(tagBox)
-
-                                }
-                                panel.layout = VerticalLayout(10)
-                                // Add the CustomJComboBox to the JPanel
-                                panel.add(projectBox)
                             }
+                            // Add the CustomJComboBox to the JPanel
+                            content.add(projectBox)
+                            content.add(tagBox)
 
-                            content.add(projectPanel)
                             content.add(btnRegisterTask)
                         }
 
