@@ -85,7 +85,7 @@ class MyToolWindow(
             println("IO OUTPUT ->")
             val processResult = getHeadBranchName(project)
             val result =
-                "work on project  ${getProjectName(project)}:${processResult.message} ${processResult.errorMessage} (from samangar plugin)"
+                "${getProjectName(project)}:${processResult.message} ${processResult.errorMessage} (Samangar plugin)"
             println("result is : $result")
             tvTaskName.text = result
             println("<- IO OUTPUT")
@@ -95,7 +95,6 @@ class MyToolWindow(
         val taskNamePanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
             add(tvTaskName)
-
             preferredSize = Dimension(500, 50) // Set the preferred size (width, height)
             minimumSize = Dimension(400, 50) // Set the minimum size
             maximumSize = Dimension(700, 50) // Set the maximum size
@@ -107,8 +106,9 @@ class MyToolWindow(
                 BorderFactory.createLineBorder(JBColor.BLACK), // Outer border
                 JBUI.Borders.empty(10) // Inner padding
             )
-
+            layout = VerticalLayout(10)
             alignmentX = JPanel.CENTER_ALIGNMENT
+            alignmentY = JPanel.CENTER_ALIGNMENT
         }
 
         button1 = JButton("شروع")
@@ -130,10 +130,6 @@ class MyToolWindow(
         endTime = JLabel("پایان : ").apply {
             alignmentX = JPanel.CENTER_ALIGNMENT
             alignmentY = JPanel.CENTER_ALIGNMENT
-        }
-
-        content.layout = VerticalLayout(10).apply {
-
         }
 
         val buttonsPanel = JPanel().apply {
